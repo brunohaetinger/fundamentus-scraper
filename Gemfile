@@ -43,7 +43,7 @@ gem "image_processing", "~> 1.2"
 # --> project
 gem "httparty" # simple HTTP client
 gem "nokogiri" # HTML parsing
-gem "detenv-rails", groups: [:development, :test] # keep secrets/configs
+gem "dotenv-rails", groups: [:development, :test] # keep secrets/configs
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
