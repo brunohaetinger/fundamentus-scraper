@@ -26,3 +26,6 @@ Things you may want to cover:
 Generated Stocks model and migrated db with the following command:
 > rails g model Stock ticker:string price:decimal pe:decimal roe:decimal p_vp:decimal div_yield:decimal fetched_at:datetime raw_html:text
 > rails db:migrate
+
+* Generate controllers
+> rails g controller Stocks index show new create fetch
