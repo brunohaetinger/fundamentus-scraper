@@ -16,4 +16,11 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  root "stocks#index"
+  resources :stocks, only: [:index, :show, :new, :create] do
+    member do
+      post :fetch # POST /stocks/:id/fetch to re-fetch live data
+    end
+  end
 end
