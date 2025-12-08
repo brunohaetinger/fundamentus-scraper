@@ -1,2 +1,13 @@
-<h1>Stocks#new</h1>
-<p>Find me in app/views/stocks/new.html.erb</p>
+<h1>Add a Stock</h1>
+
+<%= form_with model: @stock do |f| %>
+  <div>
+    <%= f.label :ticker %>
+    <%= f.text_field :ticker %>
+  </div>
+
+  <%= f.submit "Fetch & Save" %>
+<% end %>
+
+<%= link_to "Back", stocks_path %>
+
