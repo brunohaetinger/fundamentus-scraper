@@ -14,7 +14,7 @@ module Fundamentus
 
       # flexible, label-based XPath: find the element that contains the label text then take the next data cell.
       get = ->(label) {
-        node = doc.at_xpath(("//*[normalize-space(text())='#{label}']/following::td[1]")
+        node = doc.at_xpath("//*[normalize-space(text())='#{label}']/following::td[1]")
         node && node.text.strip.gsub('.', '').gsub(',', '.')
       }
 
