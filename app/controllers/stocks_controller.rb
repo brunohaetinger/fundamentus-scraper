@@ -38,9 +38,9 @@ class StocksController < ApplicationController
     @stock = Stock.find(params[:id])
     result = Fundamentus::Fetcher.fetch(@stock.ticker)
     @stock.update(
-      cotacao: result[:cotacao],
+      price: result[:cotacao],
       fetched_at: Time.current,
-      raw_html: result[:raw_html]
+      # raw_html: result[:raw_html]
     )
     redirect_to @stock, notice: "Updated."
   end
