@@ -17,10 +17,10 @@ class StocksController < ApplicationController
     result = Fundamentus::Fetcher.fetch(ticker)
     @stock = Stock.find_or_initialize_by(ticker: ticker)
     @stock.assign_attributes(
-      cotacao: result[:cotacao],
+      price: result[:cotacao],
       # TODO: add other infos
       fetched_at: Time.current,
-      raw_html: result[:raw_html]
+      # raw_html: result[:raw_html]
     )
     if @stock.save
       redirect_to @stock, notice: "Data of #{ticker} updated."
