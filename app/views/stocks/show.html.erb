@@ -1,10 +1,10 @@
 <h1><%= @stock.ticker %></h1>
 
-<p><strong>Cotação:</strong> <%= @stock.cotacao %></p>
-<p><strong>P/L:</strong> <%= @stock.pl %></p>
-<p><strong>ROE:</strong> <%= @stock.roe %></p>
-<p><strong>P/VP:</strong> <%= @stock.p_vp %></p>
-<p><strong>Dividend Yield:</strong> <%= @stock.div_yield %></p>
+<p><strong>Cotação:</strong> <%= @stock.price %></p>
+<%# <p><strong>P/L:</strong> <%= @stock.pl %></p> %>
+<%# <p><strong>ROE:</strong> <%= @stock.roe %></p> %>
+<%# <p><strong>P/VP:</strong> <%= @stock.p_vp %></p> %>
+<%# <p><strong>Dividend Yield:</strong> <%= @stock.div_yield %></p> %>
 
 <%= button_to "Re-fetch", fetch_stock_path(@stock), method: :post %>
 <br>
