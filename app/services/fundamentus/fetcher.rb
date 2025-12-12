@@ -21,7 +21,10 @@ module Fundamentus
       {
         ticker: ticker.upcase,
         cotacao: (get.call("Cotação") || get.call("Cotacao"))&.to_d,
-        #TODO: add other informations
+        pl: (get.call("P/L") || get.call("P/L")&.to_d)
+        roe: (get.call("ROE") || get.call("ROE")&.to_d)
+        p_vp: (get.call("P/VP") || get.call("P/VP")&.to_d)
+        div_yield: (get.call("Div. Yield") || get.call("Div. Yield")&.to_d)
         raw_html: resp.body
       }
     end
