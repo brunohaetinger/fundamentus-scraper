@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_23_124709) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_12_161926) do
   create_table "stocks", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.decimal "div_yield"
     t.datetime "fetched_at"
     t.decimal "p_vp"
-    t.decimal "pe"
+    t.decimal "pl"
     t.decimal "price"
     t.text "raw_html"
     t.decimal "roe"
