@@ -18,7 +18,7 @@
     <% @stocks.each do |s| %>
       <tr>
         <td><%= link_to s.ticker, stock_path(s) %></td>
-        <td><%= s.cotacao %></td>
+        <td><%= s.price %></td>
         <td><%= s.pl %></td>
         <td><%= s.roe %></td>
         <td><%= s.p_vp %></td>

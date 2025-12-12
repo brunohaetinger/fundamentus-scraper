@@ -13,12 +13,15 @@ class StocksController < ApplicationController
 
   def create
     # ticker, cotacao, raw_html
-    ticker = param[:stock][:ticker].strip.upcase
+    ticker = params[:stock][:ticker].strip.upcase
     result = Fundamentus::Fetcher.fetch(ticker)
     @stock = Stock.find_or_initialize_by(ticker: ticker)
     @stock.assign_attributes(
       price: result[:cotacao],
-      # TODO: add other infos
+      pl: result[:pl],
+      roe: result[:roe],
+      p_vp: result[:p_vp],
+      div_yield: result[:div_yield],
       fetched_at: Time.current,
       # raw_html: result[:raw_html]
     )
@@ -39,6 +42,10 @@ class StocksController < ApplicationController
     result = Fundamentus::Fetcher.fetch(@stock.ticker)
     @stock.update(
       price: result[:cotacao],
+      pl: result[:pl],
+      roe: result[:roe],
+      p_vp: result[:p_vp],
+      div_yield: result[:div_yield],
       fetched_at: Time.current,
       # raw_html: result[:raw_html]
     )
