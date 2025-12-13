@@ -1,0 +1,29 @@
+<h1>Magic Formula</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th><%= link_to 'Ticker', magic_formula_stocks_path %></th>
+      <th><%= link_to 'P/L', magic_formula_stocks_path(sort: 'pl') %></th>
+      <th><%= link_to 'Rank P/L', magic_formula_stocks_path(sort: 'rank_pl') %></th>
+      <th><%= link_to 'ROE', magic_formula_stocks_path(sort: 'roe') %></th>
+      <th><%= link_to 'Rank ROE', magic_formula_stocks_path(sort: 'rank_roe') %></th>
+      <th><%= link_to 'Magic', magic_formula_stocks_path(sort: 'magic') %></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @stocks_with_ranks.each do |s| %>
+      <tr>
+        <td><%= link_to s['ticker'], stock_path(s['id']) %></td>
+        <td><%= number_with_precision s['pl'], precision: 2 if s['pl'] %></td>
+        <td><%= s['rank_pl'] %></td>
+        <td><%= number_with_precision s['roe'], precision: 2 if s['roe'] %></td>
+        <td><%= s['rank_roe'] %></td>
+        <td><%= s['magic'] %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to 'Back to Stocks', stocks_path %>
