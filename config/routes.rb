@@ -18,7 +18,10 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   root "stocks#index"
-  resources :stocks, only: [:index, :show, :new, :create] do
+  resources :stocks, only: [ :index, :show, :new, :create ] do
+    collection do
+      get :magic_formula
+    end
     member do
       post :fetch # POST /stocks/:id/fetch to re-fetch live data
     end
