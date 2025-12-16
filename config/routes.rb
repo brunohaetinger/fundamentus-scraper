@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   resources :stocks, only: [ :index, :show, :new, :create ] do
     collection do
       get :magic_formula
+      get :magic_formula_data, defaults: { format: :json }
     end
     member do
       post :fetch # POST /stocks/:id/fetch to re-fetch live data
