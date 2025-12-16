@@ -1,29 +1,62 @@
 <h1>Magic Formula</h1>
-
-<table>
-  <thead>
-    <tr>
-      <th><%= link_to 'Ticker', magic_formula_stocks_path %></th>
-      <th><%= link_to 'P/L', magic_formula_stocks_path(sort: 'pl') %></th>
-      <th><%= link_to 'Rank P/L', magic_formula_stocks_path(sort: 'rank_pl') %></th>
-      <th><%= link_to 'ROE', magic_formula_stocks_path(sort: 'roe') %></th>
-      <th><%= link_to 'Rank ROE', magic_formula_stocks_path(sort: 'rank_roe') %></th>
-      <th><%= link_to 'Magic', magic_formula_stocks_path(sort: 'magic') %></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @stocks_with_ranks.each do |s| %>
+<div id="loader" style="display: block; text-align: center; margin: 50px 0;">
+  <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+  <p>Loading Magic Formula data...</p>
+</div>
+<div id="table-container" style="display: none;">
+  <table>
+    <thead>
       <tr>
-        <td><%= link_to s['ticker'], stock_path(s['id']) %></td>
-        <td><%= number_with_precision s['pl'], precision: 2 if s['pl'] %></td>
-        <td><%= s['rank_pl'] %></td>
-        <td><%= number_with_precision s['roe'], precision: 2 if s['roe'] %></td>
-        <td><%= s['rank_roe'] %></td>
-        <td><%= s['magic'] %></td>
+        <th><%= link_to 'Ticker', magic_formula_stocks_path %></th>
+        <th><%= link_to 'Cotação', magic_formula_stocks_path(sort: 'Cotação') %></th>
+        <th><%= link_to 'ROIC (%)', magic_formula_stocks_path(sort: 'ROIC') %></th>
+        <th><%= link_to 'EV/EBIT', magic_formula_stocks_path(sort: 'EV/EBIT') %></th>
+        <th><%= link_to 'Combined Rank', magic_formula_stocks_path(sort: 'Combined_Rank') %></th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<%= link_to 'Back to Stocks', stocks_path %>
+    </thead>
+    <tbody id="stocks-tbody">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+  <p id="timestamp"></p>
+  <%= link_to 'Back to Stocks', stocks_path %>
+</div>
+<style>
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+<script>
+  // AJAX to fetch data and populate table
+  fetch('/stocks/magic_formula_data.json')
+    .then(response => response.json())
+    .then(data => {
+      const tbody = document.getElementById('stocks-tbody');
+      const timestampEl = document.getElementById('timestamp');
+      const loader = document.getElementById('loader');
+      const container = document.getElementById('table-container');
+      if (data.error) {
+        tbody.innerHTML = '<tr><td colspan="5">Error: ' + data.error + '</td></tr>';
+      } else {
+        data.stocks.forEach(stock => {
+          const row = tbody.insertRow();
+          row.innerHTML = `
+            <td>${stock.Papel}</td>
+            <td>${stock.Cotação ? parseFloat(stock.Cotação).toFixed(2) : 'N/A'}</td>
+            <td>${stock.ROIC ? parseFloat(stock.ROIC).toFixed(2) : 'N/A'}</td>
+            <td>${stock['EV/EBIT'] ? parseFloat(stock['EV/EBIT']).toFixed(2) : 'N/A'}</td>
+            <td>${stock.Combined_Rank ? parseFloat(stock.Combined_Rank).toFixed(0) : 'N/A'}</td>
+          `;
+        });
+      }
+      timestampEl.textContent = `Data as of: ${data.timestamp}`;
+      loader.style.display = 'none';
+      container.style.display = 'block';
+    })
+    .catch(error => {
+      document.getElementById('stocks-tbody').innerHTML = '<tr><td colspan="5">Error loading data: ' + error + '</td></tr>';
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('table-container').style.display = 'block';
+    });
+</script>
