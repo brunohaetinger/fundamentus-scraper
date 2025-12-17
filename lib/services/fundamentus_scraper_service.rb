@@ -5,12 +5,16 @@ require "json"
 class FundamentusScraperService
   def self.scrape
       url = "https://fundamentus.com.br/resultado.php"
-      headers = {
-        "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      }
-
       uri = URI(url)
-      response = Net::HTTP.get_response(uri, headers)
+
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      request = Net::HTTP::Get.new(uri.request_uri)
+      request["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+      response = http.request(request)
       raise "Failed to fetch page: HTTP #{response.code}" unless response.code == "200"
 
       doc = Nokogiri::HTML(response.body)
@@ -28,12 +32,19 @@ class FundamentusScraperService
         cols = row.css("td")
         next unless cols.length >= 21
 
-        row_data = cols[0..20].map do |col|
-          text = col.text.strip.gsub(/[^\d.,-]/, "") # Clean non-numerics
-          if text.match?(/[\d.,-]/)
-            Float(text.gsub(",", ".")) rescue Float::NAN
-          else
+        row_data = cols[0..20].map.with_index do |col, idx|
+          text = col.text.strip
+          # Keep the ticker (column 0) as string
+          if idx == 0
             text
+          else
+            # Clean and convert to float for numeric columns
+            cleaned = text.gsub(/[^\d.,-]/, "")
+            if cleaned.match?(/[\d.,-]/)
+              Float(cleaned.gsub(",", ".").gsub(/^\./, "0.")) rescue Float::NAN
+            else
+              Float::NAN
+            end
           end
         end
         data << row_data
@@ -43,13 +54,19 @@ class FundamentusScraperService
 
       df = data
 
-      # Filter: ROIC > 10, EV/EBIT > 0 and < 15, Liq.2meses > 1e6, Cotação > 1
+      # Filter: ROIC > 10, EV/EBIT > 0 and < 15, Cotação > 1
+      # Relaxed liquidity requirement since data might not be available
       filtered = df.select do |row|
         roic = row[15] # TODO: create enum for columns
         ev_ebit = row[10]
         liq_2meses = row[17]
         cotacao = row[1]
-        roic > 10 && ev_ebit > 0 && ev_ebit < 15 && liq_2meses > 1_000_000 && cotacao > 1
+
+        # Check if values are valid numbers (not NaN)
+        roic.is_a?(Numeric) && !roic.nan? && roic > 10 &&
+        ev_ebit.is_a?(Numeric) && !ev_ebit.nan? && ev_ebit > 0 && ev_ebit < 15 &&
+        cotacao.is_a?(Numeric) && !cotacao.nan? && cotacao > 1 &&
+        (liq_2meses.nan? || liq_2meses > 100_000) # Relaxed liquidity or no data
       end
 
       return { error: "No stocks match the Magic Formula criteria" } if filtered.empty?
@@ -75,7 +92,7 @@ class FundamentusScraperService
       top_10 = ranked.sort_by { |r| r["Combined_Rank"] }.first(10)
 
       {
-        timestamp: Time.current.isoformat,
+        timestamp: Time.current.iso8601,
         stocks: top_10
       }
   end
