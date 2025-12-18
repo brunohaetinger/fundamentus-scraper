@@ -3,21 +3,16 @@ require "nokogiri"
 require "json"
 
 class FundamentusScraperService
-  def self.scrape
-      url = "https://fundamentus.com.br/resultado.php"
-      uri = URI(url)
+  CACHE_KEY = "fundamentus_scraper_html_response"
+  CACHE_TTL = 1.hour
 
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+  def self.scrape(sort_column)
+      # Fetch HTML with caching
+      html_response = fetch_html_with_cache
 
-      request = Net::HTTP::Get.new(uri.request_uri)
-      request["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+      puts "\n\n>>>>>>>>> Sort column is: #{sort_column}\n"
 
-      response = http.request(request)
-      raise "Failed to fetch page: HTTP #{response.code}" unless response.code == "200"
-
-      doc = Nokogiri::HTML(response.body)
+      doc = Nokogiri::HTML(html_response)
       table = doc.at("table#resultado")
       raise "Table not found on page" unless table
       rows = table.css("tbody tr")
@@ -96,5 +91,31 @@ class FundamentusScraperService
         timestamp: Time.current.iso8601,
         stocks: top_10
       }
+  end
+
+  private
+
+  def self.fetch_html_with_cache
+    Rails.cache.fetch(CACHE_KEY, expires_in: CACHE_TTL) do
+      puts "Cache miss - Fetching from fundamentus.com.br"
+      fetch_html_from_fundamentus
+    end
+  end
+
+  def self.fetch_html_from_fundamentus
+    url = "https://fundamentus.com.br/resultado.php"
+    uri = URI(url)
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+    response = http.request(request)
+    raise "Failed to fetch page: HTTP #{response.code}" unless response.code == "200"
+
+    response.body
   end
 end
