@@ -83,6 +83,7 @@ class FundamentusScraperService
         {
           "Papel" => papel,
           "Cotação" => row[1],
+          "P/L" => row[2],
           "ROIC" => row[15],
           "EV/EBIT" => row[10],
           "Combined_Rank" => (roic_ranks[papel] || Float::INFINITY) + (ev_ebit_ranks[papel] || Float::INFINITY)

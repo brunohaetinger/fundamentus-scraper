@@ -9,6 +9,7 @@
       <tr>
         <th><%= link_to 'Ticker', magic_formula_stocks_path %></th>
         <th><%= link_to 'Cotação', magic_formula_stocks_path(sort: 'Cotação') %></th>
+        <th><%= link_to 'P/L', magic_formula_stocks_path(sort: 'P/L') %></th>
         <th><%= link_to 'ROIC (%)', magic_formula_stocks_path(sort: 'ROIC') %></th>
         <th><%= link_to 'EV/EBIT', magic_formula_stocks_path(sort: 'EV/EBIT') %></th>
         <th><%= link_to 'Combined Rank', magic_formula_stocks_path(sort: 'Combined_Rank') %></th>
@@ -44,6 +45,7 @@
           row.innerHTML = `
             <td>${stock.Papel}</td>
             <td>${stock.Cotação ? parseFloat(stock.Cotação).toFixed(2) : 'N/A'}</td>
+            <td>${stock["P/L"] ? parseFloat(stock["P/L"]).toFixed(2) : 'N/A'}</td>
             <td>${stock.ROIC ? parseFloat(stock.ROIC).toFixed(2) : 'N/A'}</td>
             <td>${stock['EV/EBIT'] ? parseFloat(stock['EV/EBIT']).toFixed(2) : 'N/A'}</td>
             <td>${stock.Combined_Rank ? parseFloat(stock.Combined_Rank).toFixed(0) : 'N/A'}</td>
