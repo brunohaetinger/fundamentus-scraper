@@ -65,7 +65,8 @@ class StocksController < ApplicationController
   # sort_column = params[:sort] || "magic"
   # @stocks_with_ranks.sort_by! { |s| s[sort_column] || Float::INFINITY }
   def magic_formula_data
-    data = FundamentusScraperService.scrape
+    sort_column = params[:sort] || "Combined_Rank"
+    data = FundamentusScraperService.scrape(sort_column)
     render json: data
   rescue => e
     render json: { error: e.message }, status: :internal_server_error
