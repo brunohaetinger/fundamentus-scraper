@@ -85,7 +85,7 @@ class FundamentusScraperService
         }
       end
 
-      top_n = ranked.sort_by { |r| r["Combined_Rank"] }.first(500)
+      top_n = ranked.sort_by { |r| r[sort_column] }.first(500)
 
       {
         timestamp: Time.current.iso8601,
