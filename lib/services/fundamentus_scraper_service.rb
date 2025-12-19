@@ -6,6 +6,30 @@ class FundamentusScraperService
   CACHE_KEY = "fundamentus_scraper_html_response"
   CACHE_TTL = 1.hour
 
+  COLUMN_INDICES = {
+    papel: 0,
+    cotacao: 1,
+    pl: 2,
+    pvp: 3,
+    psr: 4,
+    div_yield: 5,
+    p_ativo: 6,
+    p_cap_giro: 7,
+    p_ebit: 8,
+    p_ativo_circ_liq: 9,
+    ev_ebit: 10,
+    ev_ebitda: 11,
+    marg_ebit: 12,
+    marg_liq: 13,
+    liq_corr: 14,
+    roic: 15,
+    roe: 16,
+    liq_2meses: 17,
+    patr_liquido: 18,
+    div_brut_patrim: 19,
+    cresc_rec_5a: 20
+  }.freeze
+  
   def self.scrape(sort_column)
       # Fetch HTML with caching
       html_response = fetch_html_with_cache
@@ -52,10 +76,10 @@ class FundamentusScraperService
       # Filter: ROIC > 10, EV/EBIT > 0 and < 15, Cotação > 1
       # Relaxed liquidity requirement since data might not be available
       filtered = df.select do |row|
-        roic = row[15] # TODO: create enum for columns
-        ev_ebit = row[10]
-        liq_2meses = row[17]
-        cotacao = row[1]
+        roic = row[COLUMN_INDICES[:roic]]
+        ev_ebit = row[COLUMN_INDICES[:ev_ebit]]
+        liq_2meses = row[COLUMN_INDICES[:liq_2meses]]
+        cotacao = row[COLUMN_INDICES[:cotacao]]
 
         # Check if values are valid numbers (not NaN)
         roic.is_a?(Numeric) && !roic.nan? && roic > 10 &&
@@ -67,20 +91,20 @@ class FundamentusScraperService
       return { error: "No stocks match the Magic Formula criteria" } if filtered.empty?
 
       # Rank: ROIC descending, EV/EBIT ascending(lower EV/EBIT = higher yield)
-      roic_sorted = filtered.sort_by { |row| -row[15] }
-      ev_ebit_sorted = filtered.sort_by { |row| row[10] }
+      roic_sorted = filtered.sort_by { |row| -row[COLUMN_INDICES[:roic]] }
+      ev_ebit_sorted = filtered.sort_by { |row| row[COLUMN_INDICES[:ev_ebit]] }
 
       roic_ranks = roic_sorted.each_with_index.with_object({}) { |(row, idx), h| h[row[0]] = idx + 1 }
       ev_ebit_ranks = ev_ebit_sorted.each_with_index.with_object({}) { |(row, idx), h| h[row[0]] = idx + 1 }
 
       ranked = filtered.map do |row|
-        papel = row[0]
+        papel = row[COLUMN_INDICES[:papel]]
         {
           "Papel" => papel,
-          "Cotação" => row[1],
-          "P/L" => row[2],
-          "ROIC" => row[15],
-          "EV/EBIT" => row[10],
+          "Cotação" => row[COLUMN_INDICES[:cotacao]],
+          "P/L" => row[COLUMN_INDICES[:pl]],
+          "ROIC" => row[COLUMN_INDICES[:roic]],
+          "EV/EBIT" => row[COLUMN_INDICES[:ev_ebit]],
           "Combined_Rank" => (roic_ranks[papel] || Float::INFINITY) + (ev_ebit_ranks[papel] || Float::INFINITY)
         }
       end
