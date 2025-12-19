@@ -85,11 +85,11 @@ class FundamentusScraperService
         }
       end
 
-      top_10 = ranked.sort_by { |r| r["Combined_Rank"] }.first(10)
+      top_n = ranked.sort_by { |r| r["Combined_Rank"] }.first(500)
 
       {
         timestamp: Time.current.iso8601,
-        stocks: top_10
+        stocks: top_n
       }
   end
 
