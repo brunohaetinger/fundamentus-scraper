@@ -30,35 +30,43 @@
 </style>
 <script>
   // AJAX to fetch data and populate table
-  fetch('/stocks/magic_formula_data.json')
-    .then(response => response.json())
-    .then(data => {
-      const tbody = document.getElementById('stocks-tbody');
-      const timestampEl = document.getElementById('timestamp');
-      const loader = document.getElementById('loader');
-      const container = document.getElementById('table-container');
-      if (data.error) {
-        tbody.innerHTML = '<tr><td colspan="5">Error: ' + data.error + '</td></tr>';
-      } else {
-        data.stocks.forEach(stock => {
-          const row = tbody.insertRow();
-          row.innerHTML = `
-            <td>${stock.Papel}</td>
-            <td>${stock.Cotação ? parseFloat(stock.Cotação).toFixed(2) : 'N/A'}</td>
-            <td>${stock["P/L"] ? parseFloat(stock["P/L"]).toFixed(2) : 'N/A'}</td>
-            <td>${stock.ROIC ? parseFloat(stock.ROIC).toFixed(2) : 'N/A'}</td>
-            <td>${stock['EV/EBIT'] ? parseFloat(stock['EV/EBIT']).toFixed(2) : 'N/A'}</td>
-            <td>${stock.Combined_Rank ? parseFloat(stock.Combined_Rank).toFixed(0) : 'N/A'}</td>
-          `;
-        });
-      }
-      timestampEl.textContent = `Data as of: ${data.timestamp}`;
-      loader.style.display = 'none';
-      container.style.display = 'block';
-    })
-    .catch(error => {
-      document.getElementById('stocks-tbody').innerHTML = '<tr><td colspan="5">Error loading data: ' + error + '</td></tr>';
-      document.getElementById('loader').style.display = 'none';
-      document.getElementById('table-container').style.display = 'block';
-    });
+   var getStocks = async () => {
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sortParam = urlParams.get('sort');
+    const url = sortParam ? `/stocks/magic_formula_data.json?sort=${encodeURIComponent(sortParam)}` : '/stocks/magic_formula_data.json';
+    
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        const tbody = document.getElementById('stocks-tbody');
+        const timestampEl = document.getElementById('timestamp');
+        const loader = document.getElementById('loader');
+        const container = document.getElementById('table-container');
+        if (data.error) {
+          tbody.innerHTML = '<tr><td colspan="5">Error: ' + data.error + '</td></tr>';
+        } else {
+          data.stocks.forEach(stock => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+              <td>${stock.Papel}</td>
+              <td>${stock.Cotação ? parseFloat(stock.Cotação).toFixed(2) : 'N/A'}</td>
+              <td>${stock["P/L"] ? parseFloat(stock["P/L"]).toFixed(2) : 'N/A'}</td>
+              <td>${stock.ROIC ? parseFloat(stock.ROIC).toFixed(2) : 'N/A'}</td>
+              <td>${stock['EV/EBIT'] ? parseFloat(stock['EV/EBIT']).toFixed(2) : 'N/A'}</td>
+              <td>${stock.Combined_Rank ? parseFloat(stock.Combined_Rank).toFixed(0) : 'N/A'}</td>
+            `;
+          });
+        }
+        timestampEl.textContent = `Data as of: ${data.timestamp}`;
+        loader.style.display = 'none';
+        container.style.display = 'block';
+      })
+      .catch(error => {
+        document.getElementById('stocks-tbody').innerHTML = '<tr><td colspan="5">Error loading data: ' + error + '</td></tr>';
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('table-container').style.display = 'block';
+      });
+  }
+  getStocks();
 </script>
